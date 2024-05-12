@@ -1,5 +1,5 @@
-import errorHandler from "../utils/errorHandler";
-import { catchAsyncError } from "./catchAsyncError";
+import errorHandler from "../utils/errorHandler.js";
+import { catchAsyncError } from "./catchAsyncError.js";
 import { User } from "../models/User.js";
 
 export const isUser = catchAsyncError(async (req, res, next) => {
