@@ -22,7 +22,7 @@ const schema = new mongoose.Schema({
     type: Number,
     required: [true, "Please enter hall location"],
   },
-  images: [
+  files: [
     {
       url: {
         type: String,
