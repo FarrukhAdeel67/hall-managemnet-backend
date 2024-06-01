@@ -1,4 +1,5 @@
 import multer from "multer";
+import cloudinary from "cloudinary";
 
 // Middleware for single file upload
 const singleStorage = multer.memoryStorage();

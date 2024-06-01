@@ -54,3 +54,15 @@ export const logout = catchAsyncError(async (req, res, next) => {
       message: "Logged Out Successfully",
     });
 });
+//get all users
+export const getAllUsers = catchAsyncError(async (req, res, next) => {
+  const Users = await User.find();
+  if (!Users) {
+    return next(new errorHandler("No User found", 404));
+  }
+
+  res.status(200).json({
+    success: true,
+    Users,
+  });
+});

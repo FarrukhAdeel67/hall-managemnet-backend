@@ -6,6 +6,10 @@ const schema = new mongoose.Schema({
     type: String,
     required: [true, "Please Enter Your Full Name"],
   },
+  ownerName: {
+    type: String,
+    required: [true, "Please Enter Hall Owner Name"],
+  },
   location: {
     type: String,
     required: [true, "Please enter location of the hall"],
