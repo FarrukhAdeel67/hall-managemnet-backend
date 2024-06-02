@@ -1,5 +1,12 @@
 import express from "express";
-import { getAllUsers, login, logout, register } from "../controllers/userController.js";
+import {
+  bookHall,
+  getAllUsers,
+  getPaymentIntent,
+  login,
+  logout,
+  register,
+} from "../controllers/userController.js";
 import hallRouter from "./hallRoutes.js";
 import { isUser } from "../middlewares/isUser.js";
 import { getAllHalls } from "../controllers/hallController.js";
@@ -13,7 +20,13 @@ router.route("/login").post(login);
 router.route("/logout").get(logout);
 // get all users
 router.route("/getAllUsers").get(getAllUsers);
-// create hall
+//create paymentIntent
+router
+  .route("/users/:userid/halls/:hallId/getPaymentIntent")
+  .post(getPaymentIntent);
+//book a hall
+router.route("/users/:userId/halls/:hallId/bookHall").post(bookHall);
+//hall router
 router.use("/users/:userId", isUser, hallRouter);
 
 export default router;

@@ -7,10 +7,36 @@ import mongoose from "mongoose";
 import { uploadFile } from "../middlewares/multer.js";
 
 export const createHall = catchAsyncError(async (req, res, next) => {
-  const { name, ownerName, email, location, area, capacity, rentCharge, description } = req.body;
+  const {
+    name,
+    ownerName,
+    email,
+    location,
+    area,
+    capacity,
+    rentCharge,
+    description,
+  } = req.body;
   const files = req.files;
-  console.log(name, email, location, capacity, rentCharge, description, ownerName);
-  if (!name || !location || !area || !capacity || !rentCharge || !email || !description || !ownerName) {
+  console.log(
+    name,
+    email,
+    location,
+    capacity,
+    rentCharge,
+    description,
+    ownerName
+  );
+  if (
+    !name ||
+    !location ||
+    !area ||
+    !capacity ||
+    !rentCharge ||
+    !email ||
+    !description ||
+    !ownerName
+  ) {
     return next(new errorHandler("Required Fields cannot be empty", 400));
   }
   // const uploadedFiles = [];
@@ -33,8 +59,8 @@ export const createHall = catchAsyncError(async (req, res, next) => {
   //     // uploadedFiles.push(null);
   //   }
   // }
-  const results = await Promise.all(files.map(file => uploadFile(file)));
-  const uploadedFiles = results.map(result => ({ url: result.secure_url }));
+  const results = await Promise.all(files.map((file) => uploadFile(file)));
+  const uploadedFiles = results.map((result) => ({ url: result.secure_url }));
   const hall = await Hall.create({
     name,
     ownerName,
@@ -55,10 +81,21 @@ export const createHall = catchAsyncError(async (req, res, next) => {
   });
 });
 
-
 export const getAllHalls = catchAsyncError(async (req, res, next) => {
-  const halls = await Hall.find();
-  if (!halls) {
+  const { name, location } = req.query;
+
+  const filter = [];
+  if (name) {
+    filter.push({ name: { $regex: name, $options: "i" } });
+  }
+  if (location) {
+    filter.push({ location: { $regex: location, $options: "i" } });
+  }
+
+  const halls =
+    filter.length > 0 ? await Hall.find({ $or: filter }) : await Hall.find();
+
+  if (!halls || halls.length === 0) {
     return next(new errorHandler("No halls found", 404));
   }
 
@@ -79,7 +116,7 @@ export const getMyHalls = catchAsyncError(async (req, res, next) => {
   if (!halls || halls.length === 0) {
     return next(new errorHandler("No halls found", 404));
   }
-  console.log(halls, "Halls")
+  console.log(halls, "Halls");
   res.status(200).json({
     success: true,
     halls,
@@ -90,12 +127,10 @@ export const getSingleHall = catchAsyncError(async (req, res, next) => {
   const { hallId } = req.params;
   const hall = await Hall.findOne({ _id: hallId });
   if (!hall) {
-    return res.status(404).json({ message: 'Hall not found' });
+    return res.status(404).json({ message: "Hall not found" });
   }
   res.status(200).json({
     success: true,
     hall,
   });
 });
-
-
