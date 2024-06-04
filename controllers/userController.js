@@ -1,6 +1,7 @@
 import { catchAsyncError } from "../middlewares/catchAsyncError.js";
 import errorHandler from "../utils/errorHandler.js";
 import { User } from "../models/User.js";
+import { Hall } from "../models/Hall.js";
 import { Booking } from "../models/Booking.js";
 import { sendToken } from "../utils/sendToken.js";
 
@@ -121,8 +122,10 @@ export const bookHall = catchAsyncError(async (req, res, next) => {
       fkUserId: userId,
       fkHallId: hallId,
     });
-
-    console.log(bookedHall);
+    const updateHall = await Hall.findByIdAndUpdate(hallId, {
+      isBooked: true,
+    });
+    console.log(bookedHall, updateHall);
     res.status(200).json({
       success: true,
       message: "hall booked successfully",
