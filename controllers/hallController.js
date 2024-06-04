@@ -84,15 +84,16 @@ export const createHall = catchAsyncError(async (req, res, next) => {
 export const getAllHalls = catchAsyncError(async (req, res, next) => {
   const { name, location } = req.query;
 
-  const filter = { isBooked: { $ne: true } }; // Exclude halls that are booked
+  const filter = [];
   if (name) {
-    filter.name = { $regex: name, $options: "i" };
+    filter.push({ name: { $regex: name, $options: "i" } });
   }
   if (location) {
-    filter.location = { $regex: location, $options: "i" };
+    filter.push({ location: { $regex: location, $options: "i" } });
   }
 
-  const halls = await Hall.find(filter);
+  const halls =
+    filter.length > 0 ? await Hall.find({ $or: filter }) : await Hall.find();
 
   if (!halls || halls.length === 0) {
     return next(new errorHandler("No halls found", 404));

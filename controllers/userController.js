@@ -115,6 +115,22 @@ export const bookHall = catchAsyncError(async (req, res, next) => {
     ) {
       throw new Error("required fileds cannot be empty ");
     }
+
+    const hall = await Hall.findById(hallId);
+    if (!hall) {
+      throw new Error("hall not found");
+    }
+    const chcekBooking = await Booking.findOne({
+      fkHallId: hallId,
+      bookingDateAndTime: bookingDateAndTime,
+    });
+    console.log(hall.bookingDateAndTime, bookingDateAndTime);
+    if (hall.isBooked && chcekBooking) {
+      throw new Error(
+        "hall is already booked for this date and time, kindly choose another date and time."
+      );
+    }
+
     const bookedHall = await Booking.create({
       paymentAmount: amount,
       paymentIntentId: paymentIntentId,
