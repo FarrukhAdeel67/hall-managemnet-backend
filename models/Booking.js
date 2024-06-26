@@ -23,6 +23,10 @@ const schema = new mongoose.Schema({
     ref: "Hall",
     required: true,
   },
+  isBooked: {
+    type: Boolean,
+    default: false,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
