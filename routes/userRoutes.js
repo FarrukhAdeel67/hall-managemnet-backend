@@ -1,8 +1,11 @@
 import express from "express";
 import {
   bookHall,
+  getAllBookings,
   getAllUsers,
+  getMyBookings,
   getPaymentIntent,
+  getSpecificHallBookings,
   login,
   logout,
   register,
@@ -26,6 +29,10 @@ router
   .post(getPaymentIntent);
 //book a hall
 router.route("/users/:userId/halls/:hallId/bookHall").post(bookHall);
+// get specific hall bookings
+router.route("/users/:userId/halls/:hallId/bookings").get(getSpecificHallBookings);
+router.route("/users/:userId/myBookings").get(getMyBookings);
+router.route("/users/getAllBookings").get(getAllBookings);
 //hall router
 router.use("/users/:userId", isUser, hallRouter);
 

@@ -26,9 +26,9 @@ const schema = new mongoose.Schema({
     type: Number,
     required: [true, "Please enter hall location"],
   },
-  isBooked: {
-    type: Boolean,
-    default: false,
+  bookingCount: {
+    type: Number,
+    default: 0,
   },
   files: [
     {

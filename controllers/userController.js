@@ -8,6 +8,7 @@ import { sendToken } from "../utils/sendToken.js";
 //register user
 
 import stripe from "stripe";
+import mongoose from "mongoose";
 
 const stripeInstance = stripe(
   "sk_test_51PMv4eFjKd2J4rFyzo5tlxMCmP9xWK94LEIyONL8AmKvMWJqidhllSLT3OtHhMCVbdV9BKkoKcdXbmbTQ9Nl42Zd00uEw6fZtL"
@@ -124,8 +125,8 @@ export const bookHall = catchAsyncError(async (req, res, next) => {
       fkHallId: hallId,
       bookingDateAndTime: bookingDateAndTime,
     });
-    console.log(hall.bookingDateAndTime, bookingDateAndTime);
-    if (hall.isBooked && chcekBooking) {
+
+    if (chcekBooking) {
       throw new Error(
         "hall is already booked for this date and time, kindly choose another date and time."
       );
@@ -138,10 +139,13 @@ export const bookHall = catchAsyncError(async (req, res, next) => {
       fkUserId: userId,
       fkHallId: hallId,
     });
-    const updateHall = await Hall.findByIdAndUpdate(hallId, {
-      isBooked: true,
-    });
-    console.log(bookedHall, updateHall);
+    const updateHall = await Hall.findByIdAndUpdate(
+      hallId,
+      {
+        $inc: { bookingCount: 1 },
+      },
+      { new: true }
+    );
     res.status(200).json({
       success: true,
       message: "hall booked successfully",
@@ -151,3 +155,88 @@ export const bookHall = catchAsyncError(async (req, res, next) => {
     throw new Error(error.message);
   }
 });
+
+export const getSpecificHallBookings = catchAsyncError(
+  async (req, res, next) => {
+    const { hallId } = req.params;
+    const bookings = await Booking.find({ fkHallId: hallId });
+
+    if (!bookings) {
+      return res.status(404).json({ message: "Bookings not found" });
+    }
+    res.status(200).json({
+      success: true,
+      bookings,
+    });
+  }
+);
+
+export const getMyBookings = catchAsyncError(async (req, res, next) => {
+  const { userId } = req.params;
+
+  if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+    return res.status(400).json({ message: "Invalid or missing userId" });
+  }
+
+  try {
+    const myBookings = await Booking.find({
+      fkUserId: new mongoose.Types.ObjectId(userId),
+    });
+
+    if (!myBookings || myBookings.length === 0) {
+      return res.status(404).json({ message: "Bookings not found" });
+    }
+
+    // Fetch the hall details for each booking
+    const halls = await Promise.all(
+      myBookings.map(async (booking) => {
+        const hall = await Hall.findById(booking.fkHallId);
+        return {
+          hall,
+        };
+      })
+    );
+    console.log(halls);
+    console.log(myBookings);
+    res.status(200).json({
+      success: true,
+      myBookings,
+      halls,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+export const getAllBookings = catchAsyncError(async (req, res, next) => {
+  try {
+    const myBookings = await Booking.find();
+
+    if (!myBookings || myBookings.length === 0) {
+      return res.status(404).json({ message: "Bookings not found" });
+    }
+
+    // Fetch the user and hall details for each booking
+    const detailedBookings = await Promise.all(
+      myBookings.map(async (booking) => {
+        const hall = await Hall.findById(booking.fkHallId);
+        const user = await User.findById(booking.fkUserId);
+
+        return {
+          booking,
+          hall,
+          user,
+        };
+      })
+    );
+    console.log(detailedBookings, "Bookings");
+    res.status(200).json({
+      success: true,
+      detailedBookings,
+      myBookings
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
