@@ -3,6 +3,7 @@ import errorHandler from "../utils/errorHandler.js";
 import { User } from "../models/User.js";
 import { Hall } from "../models/Hall.js";
 import { Booking } from "../models/Booking.js";
+import { Email } from "../models/Email.js";
 import { sendToken } from "../utils/sendToken.js";
 
 //register user
@@ -240,3 +241,24 @@ export const getAllBookings = catchAsyncError(async (req, res, next) => {
   }
 });
 
+export const saveEmail = catchAsyncError(async (req, res, next) => {
+  const {
+    email
+  } = req.body;
+  console.log(email, "email")
+  if (
+    !email
+  ) {
+    return next(new errorHandler("Required Fields cannot be empty", 400));
+  }
+
+  const myEmail = await Email.create({
+    email: email
+  });
+
+  res.status(201).json({
+    success: true,
+    message: "Email Saved Successfully!",
+    data: myEmail,
+  });
+});

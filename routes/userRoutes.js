@@ -9,6 +9,7 @@ import {
   login,
   logout,
   register,
+  saveEmail,
 } from "../controllers/userController.js";
 import hallRouter from "./hallRoutes.js";
 import { isUser } from "../middlewares/isUser.js";
@@ -33,7 +34,10 @@ router.route("/users/:userId/halls/:hallId/bookHall").post(bookHall);
 router.route("/users/:userId/halls/:hallId/bookings").get(getSpecificHallBookings);
 router.route("/users/:userId/myBookings").get(getMyBookings);
 router.route("/users/getAllBookings").get(getAllBookings);
+router.route("/save-email").post(saveEmail);
+
 //hall router
 router.use("/users/:userId", isUser, hallRouter);
+
 
 export default router;
